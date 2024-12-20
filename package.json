@@ -1,0 +1,30 @@
+{
+  "name": "discord-webhook-logger",
+  "version": "1.0.0",
+  "description": "An easy way to send your logs on Discord via webhooks.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mizari-Dev/discord-webhook-logger.git"
+  },
+  "keywords": [
+    "discord",
+    "discord.js",
+    "webhook",
+    "log",
+    "logs",
+    "logger"
+  ],
+  "author": "Mizari",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Mizari-Dev/discord-webhook-logger/issues"
+  },
+  "homepage": "https://github.com/Mizari-Dev/discord-webhook-logger#readme",
+  "dependencies": {
+    "discord.js": "^14.16.3"
+  }
+}
