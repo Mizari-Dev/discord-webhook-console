@@ -1,5 +1,5 @@
-# discord-webhook-logger
-An easy way to send your logs on Discord via webhooks.
+# discord-webhook-console
+Like JavaScript `console` object but work with Discord webhooks.
 
 Exemple of use:
 ```javascript
