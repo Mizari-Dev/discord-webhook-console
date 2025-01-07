@@ -18,10 +18,12 @@ class WebhookConsole{
     async #send(content, type){
         var embed = new EmbedBuilder({
             color: ({
-                "error": resolveColor("#A3332C")
+                "assert": resolveColor("Red"),
+                "error": resolveColor("Red")
             }[type] || resolveColor("#2B2D31")),
             title: type.toUpperCase(),
             description: "```ansi\n"+({
+                "assert": "[0;31m",
                 "error": "[0;31m",
                 "warn": "[0;33m"
             }[type] || "")+content+"[0;0m```"
@@ -59,12 +61,35 @@ class WebhookConsole{
             if (content !== "undefined")
                 result.push(content);
 
-            this.#send(result.join(": "), "assert");
+            await this.#send(result.join(": "), "assert");
         }
     }
 
     /**
-     * Prints to `webhook` with new embed. Multiple arguments can be passed, with the
+     * Sends to `webhook` with new embed. Multiple arguments can be passed, with the
+     * first used as the primary message and all additional used as substitution
+     * values similar to [`printf(3)`](http://man7.org/linux/man-pages/man3/printf.3.html)
+     * (the arguments are all passed to [`util.formatWithOptions({ colors: true })`](https://nodejs.org/docs/latest-v22.x/api/util.html#utilformatwithoptionsinspectoptions-format-args)).
+     *
+     * ```js
+     * const count = 5;
+     * wconsole.debug('count: %d', count);
+     * // Sends: count: 5, to webhook
+     * wconsole.debug('count:', count);
+     * // Sends: count: 5, to webhook where "5" is colored as a number
+     * ```
+     *
+     * See [`util.format()`](https://nodejs.org/docs/latest-v22.x/api/util.html#utilformatformat-args) for more information.
+     * @since v1.0.0
+     */
+    async debug(message, ...optionalParams){
+        const content = util.formatWithOptions({ colors: true }, message, ...optionalParams);
+
+        await this.#send(content, "debug");
+    }
+
+    /**
+     * Sends to `webhook` with new embed. Multiple arguments can be passed, with the
      * first used as the primary message and all additional used as substitution
      * values similar to [`printf(3)`](http://man7.org/linux/man-pages/man3/printf.3.html)
      * (the arguments are all passed to [`util.format()`](https://nodejs.org/docs/latest-v22.x/api/util.html#utilformatformat-args)).
@@ -73,7 +98,7 @@ class WebhookConsole{
      * const count = 5;
      * wconsole.log('count: %d', count);
      * // Sends: count: 5, to webhook
-     * console.log('count:', count);
+     * wconsole.log('count:', count);
      * // Sends: count: 5, to webhook
      * ```
      *
