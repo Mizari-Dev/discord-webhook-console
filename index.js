@@ -66,26 +66,11 @@ class WebhookConsole{
     }
 
     /**
-     * Sends to `webhook` with new embed. Multiple arguments can be passed, with the
-     * first used as the primary message and all additional used as substitution
-     * values similar to [`printf(3)`](http://man7.org/linux/man-pages/man3/printf.3.html)
-     * (the arguments are all passed to [`util.formatWithOptions({ colors: true })`](https://nodejs.org/docs/latest-v22.x/api/util.html#utilformatwithoptionsinspectoptions-format-args)).
-     *
-     * ```js
-     * const count = 5;
-     * wconsole.debug('count: %d', count);
-     * // Sends: count: 5, to webhook
-     * wconsole.debug('count:', count);
-     * // Sends: count: 5, to webhook where "5" is colored as a number
-     * ```
-     *
-     * See [`util.format()`](https://nodejs.org/docs/latest-v22.x/api/util.html#utilformatformat-args) for more information.
+     * The `wconsole.debug()` function is an alias for {@link log}.
      * @since v1.0.0
      */
     async debug(message, ...optionalParams){
-        const content = util.formatWithOptions({ colors: true }, message, ...optionalParams);
-
-        await this.#send(content, "debug");
+        await this.log(message, ...optionalParams);
     }
 
     /**
@@ -123,6 +108,14 @@ class WebhookConsole{
     }
 
     /**
+     * The `wconsole.info()` function is an alias for {@link log}.
+     * @since v1.0.0
+     */
+    async info(message, ...optionalParams){
+        await this.log(message, ...optionalParams);
+    }
+
+    /**
      * Sends to `webhook` with new embed. Multiple arguments can be passed, with the
      * first used as the primary message and all additional used as substitution
      * values similar to [`printf(3)`](http://man7.org/linux/man-pages/man3/printf.3.html)
@@ -140,7 +133,7 @@ class WebhookConsole{
      * @since v1.0.0
      */
     async log(message, ...optionalParams) {
-        const content = util.format(message, ...optionalParams);
+        const content = util.formatWithOptions({ colors: true }, message, ...optionalParams);
 
         await this.#send(content, "log");
     }
