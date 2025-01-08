@@ -95,6 +95,40 @@ class WebhookConsole{
      * (the arguments are all passed to [`util.format()`](https://nodejs.org/docs/latest-v22.x/api/util.html#utilformatformat-args)).
      *
      * ```js
+     * const code = 5;
+     * wconsole.error('error #%d', code);
+     * // Sends: error #5, to webhook
+     * wconsole.error('error', code);
+     * // Sends: error 5, to webhook
+     * ```
+     *
+     * If formatting elements (e.g. `%d`) are not found in the first string then
+     * [`util.inspect()`](https://nodejs.org/docs/latest-v22.x/api/util.html#utilinspectobject-options) is called on each argument and the
+     * resulting string values are concatenated. See [`util.format()`](https://nodejs.org/docs/latest-v22.x/api/util.html#utilformatformat-args)
+     * for more information.
+     * @since v1.0.0
+     */
+    async error(message, ...optionalParams){
+        let content;
+        if (message.includes("%")){
+            content = util.format(message, ...optionalParams);
+        } else {
+            content = message;
+            for (let i = 0; i < optionalParams.length; i++) {
+                content += " " + util.inspect(optionalParams[i]);
+            }
+        }
+
+        await this.#send(content, "error");
+    }
+
+    /**
+     * Sends to `webhook` with new embed. Multiple arguments can be passed, with the
+     * first used as the primary message and all additional used as substitution
+     * values similar to [`printf(3)`](http://man7.org/linux/man-pages/man3/printf.3.html)
+     * (the arguments are all passed to [`util.format()`](https://nodejs.org/docs/latest-v22.x/api/util.html#utilformatformat-args)).
+     *
+     * ```js
      * const count = 5;
      * wconsole.log('count: %d', count);
      * // Sends: count: 5, to webhook
