@@ -26,5 +26,8 @@
   "main": "index.js",
   "scripts": {
     "test": "node test.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.17.3"
   }
 }
