@@ -1,35 +1,63 @@
 const { WebhookClient, EmbedBuilder, resolveColor } = require("discord.js");
-const util = require("util");
+const util = require("node:util");
+const { Console } = require('node:console');
+const stream = require('stream');
 
 class WebhookConsole{
+    #assert_console
+    #error_console
+    #log_console
+    #warn_console
+
     /**
      * The webhook to send logs to
      * @param {String} url The URL of the Discord webhook
      */
     constructor(url){
-        this.webhook = new WebhookClient({ url: url });
-    }
-
-    /**
-     * Send the log to the webhook
-     * @param {String} content The content to send 
-     * @param {String} type The type of log to send
-     */
-    async #send(content, type){
-        var embed = new EmbedBuilder({
-            color: ({
-                "assert": resolveColor("Red"),
-                "error": resolveColor("Red")
-            }[type] || resolveColor("#2B2D31")),
-            title: type.toUpperCase(),
-            description: "```ansi\n"+({
-                "assert": "[0;31m",
-                "error": "[0;31m",
-                "warn": "[0;33m"
-            }[type] || "")+content+"[0;0m```"
+        const webhook = new WebhookClient({ url: url });
+        // Assert
+        this.#assert_console = new Console({
+            stdout: new stream.Writable({
+                write: function(chunk){
+                    let embed = new EmbedBuilder({
+                        title: "ASSERT",
+                        color: resolveColor("Red"),
+                        description: "```ansi\n"+chunk.toString()+"[0;0m```"
+                    });
+                
+                    webhook.send({ embeds: [embed] });
+                }
+            }),
+            color: true
         });
-    
-        await this.webhook.send({ embeds: [embed] });
+        // Error
+        this.#error_console = new Console({
+            stdout: new stream.Writable({
+                write: function(chunk){
+                    let embed = new EmbedBuilder({
+                        title: "ERROR",
+                        color: resolveColor("Red"),
+                        description: "```ansi\n"+"[0;31m"+chunk.toString()+"[0;0m```"
+                    });
+                
+                    webhook.send({ embeds: [embed] });
+                }
+            })
+        });
+        // Log
+        this.#log_console = new Console({
+            stdout: new stream.Writable({
+                write: function(chunk){
+                    let embed = new EmbedBuilder({
+                        title: "LOG",
+                        description: "```ansi\n"+chunk.toString()+"[0;0m```"
+                    });
+                
+                    webhook.send({ embeds: [embed] });
+                }
+            }),
+            color: true
+        });
     }
 
     /**
@@ -53,24 +81,16 @@ class WebhookConsole{
      * @param {Boolean} value The value tested for being truthy.
      * @param {String} message All arguments besides `value` are used as error message.
      */
-    async assert(value, message, ...optionalParams){
-
-        if (!value){
-            const content = util.format(message, ...optionalParams);
-            const result = ["Assertion failed"];
-            if (content !== "undefined")
-                result.push(content);
-
-            await this.#send(result.join(": "), "assert");
-        }
+    assert(value, message, ...optionalParams){
+        this.#assert_console.assert(value, message, ...optionalParams);
     }
 
     /**
      * The `wconsole.debug()` function is an alias for {@link log}.
      * @since v1.0.0
      */
-    async debug(message, ...optionalParams){
-        await this.log(message, ...optionalParams);
+    debug(message, ...optionalParams){
+        this.log(message, ...optionalParams);
     }
 
     /**
@@ -93,26 +113,16 @@ class WebhookConsole{
      * for more information.
      * @since v1.0.0
      */
-    async error(message, ...optionalParams){
-        let content;
-        if (message.includes("%")){
-            content = util.format(message, ...optionalParams);
-        } else {
-            content = message;
-            for (let i = 0; i < optionalParams.length; i++) {
-                content += " " + util.inspect(optionalParams[i]);
-            }
-        }
-
-        await this.#send(content, "error");
+    error(message, ...optionalParams){
+        this.#error_console.error(message, ...optionalParams);
     }
 
     /**
      * The `wconsole.info()` function is an alias for {@link log}.
      * @since v1.0.0
      */
-    async info(message, ...optionalParams){
-        await this.log(message, ...optionalParams);
+    info(message, ...optionalParams){
+        this.log(message, ...optionalParams);
     }
 
     /**
@@ -133,9 +143,7 @@ class WebhookConsole{
      * @since v1.0.0
      */
     async log(message, ...optionalParams) {
-        const content = util.formatWithOptions({ colors: true }, message, ...optionalParams);
-
-        await this.#send(content, "log");
+        this.#log_console.log(message, ...optionalParams);
     }
 }
 
