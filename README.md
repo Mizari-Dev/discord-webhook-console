@@ -6,7 +6,7 @@ Exemple of use:
 const { WebhookConsole } = require("./index.js");
 
 // create the webhook console with a Discord webhook URL
-const wconsole = new WebhookConsole("[webhook url]");
+const wconsole = new WebhookConsole("https://discord.com/api/webhooks/{webhook_id}/{webhook_token}");
 
 // assert log
 wconsole.assert(false, "Assert test");
