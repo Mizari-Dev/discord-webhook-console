@@ -1,5 +1,4 @@
 const { WebhookClient, EmbedBuilder, resolveColor } = require("discord.js");
-const util = require("node:util");
 const { Console } = require('node:console');
 const stream = require('stream');
 
