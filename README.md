@@ -3,7 +3,7 @@ Like JavaScript `console` object but works with Discord webhooks.
 
 Exemple of use:
 ```javascript
-const { WebhookConsole } = require("./index.js");
+const { WebhookConsole } = require("discord-webhook-console");
 
 // create the webhook console with a Discord webhook URL
 const wconsole = new WebhookConsole("https://discord.com/api/webhooks/{webhook_id}/{webhook_token}");
