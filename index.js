@@ -1,6 +1,36 @@
-const { WebhookClient, EmbedBuilder, resolveColor } = require("discord.js");
 const { Console } = require('node:console');
 const stream = require('stream');
+
+class WebhookClient {
+    constructor({ url }) {
+        if (!url) throw new Error("The 'url' attribute is required.");
+        this.url = url;
+    }
+
+    async send({ content = null, embeds = null, username = null, avatar_url = null } = {}) {
+        if (!content && !embeds) throw new Error("You must provide at least 'content' or 'embeds'.");
+
+        const payload = {};
+        if (content) payload.content = content;
+        if (embeds) payload.embeds = embeds;
+        if (username) payload.username = username;
+        if (avatar_url) payload.avatar_url = avatar_url;
+
+        try {
+            const response = await fetch(this.url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) throw new Error(`Failed to send message: ${response.statusText}`);
+
+        } catch (error) {
+            console.error("Error sending message:", error);
+        }
+    }
+}
+
 
 class WebhookConsole{
     #assert_console
@@ -20,11 +50,11 @@ class WebhookConsole{
         this.#assert_console = new Console({
             stdout: new stream.Writable({
                 write: function(chunk, encoding, next){
-                    let embed = new EmbedBuilder({
+                    let embed = {
                         title: "ASSERT",
-                        color: resolveColor("Red"),
-                        description: "```ansi\n"+chunk.toString()+"[0;0m```"
-                    });
+                        color: 0xE74C3C,
+                        description: "```ansi\n"+chunk.toString()+"\x1b[0;0m```"
+                    };
                 
                     webhook.send({ embeds: [embed] });
                     next();
@@ -36,11 +66,11 @@ class WebhookConsole{
         this.#count_console = new Console({
             stdout: new stream.Writable({
                 write: function(chunk, encoding, next){
-                    let embed = new EmbedBuilder({
+                    let embed = {
                         title: "COUNT",
-                        color: resolveColor("Blurple"),
-                        description: "```ansi\n"+chunk.toString()+"[0;0m```"
-                    });
+                        color: 0x7289DA,
+                        description: "```ansi\n"+chunk.toString()+"\x1b[0;0m```"
+                    };
                 
                     webhook.send({ embeds: [embed] });
                     next();
@@ -52,11 +82,11 @@ class WebhookConsole{
         this.#error_console = new Console({
             stdout: new stream.Writable({
                 write: function(chunk, encoding, next){
-                    let embed = new EmbedBuilder({
+                    let embed = {
                         title: "ERROR",
-                        color: resolveColor("Red"),
-                        description: "```ansi\n"+"[0;31m"+chunk.toString()+"[0;0m```"
-                    });
+                        color: 0xE74C3C,
+                        description: "```ansi\n"+"\x1b[0;31m"+chunk.toString()+"\x1b[0;0m```"
+                    };
                 
                     webhook.send({ embeds: [embed] });
                     next();
@@ -67,10 +97,10 @@ class WebhookConsole{
         this.#log_console = new Console({
             stdout: new stream.Writable({
                 write: function(chunk, encoding, next){
-                    let embed = new EmbedBuilder({
+                    let embed = {
                         title: "LOG",
-                        description: "```ansi\n"+chunk.toString()+"[0;0m```"
-                    });
+                        description: "```ansi\n"+chunk.toString()+"\x1b[0;0m```"
+                    };
                 
                     webhook.send({ embeds: [embed] });
                     next();
@@ -82,11 +112,11 @@ class WebhookConsole{
         this.#time_console = new Console({
             stdout: new stream.Writable({
                 write: function(chunk, encoding, next){
-                    let embed = new EmbedBuilder({
-                        color: resolveColor("Blurple"),
+                    let embed = {
+                        color: 0x7289DA,
                         title: "TIME",
-                        description: "```ansi\n"+chunk.toString()+"[0;0m```"
-                    });
+                        description: "```ansi\n"+chunk.toString()+"\x1b[0;0m```"
+                    };
                 
                     webhook.send({ embeds: [embed] });
                     next();
@@ -98,11 +128,11 @@ class WebhookConsole{
         this.#warn_console = new Console({
             stdout: new stream.Writable({
                 write: function(chunk, encoding, next){
-                    let embed = new EmbedBuilder({
-                        color: resolveColor("Orange"),
+                    let embed = {
+                        color: 0xE67E22,
                         title: "WARN",
-                        description: "```ansi\n"+"[0;33m"+chunk.toString()+"[0;0m```"
-                    });
+                        description: "```ansi\n"+"\x1b[0;33m"+chunk.toString()+"\x1b[0;0m```"
+                    };
                 
                     webhook.send({ embeds: [embed] });
                     next();
